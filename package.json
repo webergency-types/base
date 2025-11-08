@@ -1,0 +1,28 @@
+{
+    "name": "@webergency-types/base",
+    "version": "0.0.1",
+    "description": "",
+    "author": "radixxko",
+    "main": "dist/types.js",
+    "types": "dist/types.d.ts",
+    "files": [
+        "dist/**/*"
+    ],
+    "scripts": {
+        "clean": "rm -rf ./dist/* node_modules package-lock.json && npm i",
+        "build": "npm run clean && tsc",
+        "version": "npm run build && npm publish --access public && npm run commit && git push",
+        "commit": "node -e \"const version = require('./package.json').version.trim(); require('child_process').execSync('git add . && git commit -m \\\"Version ' + version + '\\\"');\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/webergency-types/base.git"
+    },
+    "bugs": {
+        "url": "https://github.com/webergency-types/base/issues"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.0",
+        "typescript": "^5.9.3"
+    }
+}
