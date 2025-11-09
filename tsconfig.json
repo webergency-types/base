@@ -2,9 +2,6 @@
   "include": ["src/**/*"],
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
-    "declaration": true,
-    "declarationDir": "dist",
     "target": "es2022",
     "experimentalDecorators": true,
     "module": "commonJS",
