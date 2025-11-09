@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
@@ -224,7 +226,7 @@ class PackageManager
     {
         console.log(green('Running build...'));
         await this.clean();
-        await DebugExec('tsup src/types.ts --dts --dts-only --no-splitting --out-dir .', { cwd: __dirname });
+        await DebugExec('npx tsup src/types.ts --dts --dts-only --no-splitting --out-dir .', { cwd: __dirname });
         console.log(green('Build completed!'));
     }
 
@@ -236,7 +238,6 @@ class PackageManager
         const packageJson = this.getPackageJson();
         const originalVersion = packageJson.version;
         const originalDevDependencies = packageJson.devDependencies;
-        const originalScripts = packageJson.scripts;
 
         // Bump version
         const newVersion = this.bumpVersion(originalVersion, versionType, isRc, incrementRcOnly);
@@ -244,16 +245,31 @@ class PackageManager
         packageJson.version = newVersion;
         this.savePackageJson(packageJson);
 
-        // Build
-        await this.build();
-
-        // Remove scripts and devDependencies for publish
-        delete packageJson.scripts;
-        delete packageJson.devDependencies;
-        this.savePackageJson(packageJson);
-
         try
         {
+            // Build
+            await this.build();
+
+            // Ask for confirmation before publishing
+            const prompt = new Prompt();
+            const confirmation = await prompt.select(`Ready to publish version ${newVersion}:`, {
+                publish: `Publish ${newVersion}`,
+                cancel: 'Cancel'
+            });
+
+            if (confirmation === 'cancel')
+            {
+                // Revert version back to original
+                packageJson.version = originalVersion;
+                this.savePackageJson(packageJson);
+                console.log(blue(`Cancelled. Reverted version back to ${originalVersion}`));
+                return;
+            }
+
+            // Remove devDependencies for publish
+            delete packageJson.devDependencies;
+            this.savePackageJson(packageJson);
+
             // Publish
             console.log(green(`Publishing version ${newVersion}...`));
             await DebugExec('npm publish --access public', { cwd: __dirname });
@@ -267,7 +283,7 @@ class PackageManager
         catch (error)
         {
             const err = error as Error;
-            console.error(red(`Error during publish: ${err.message}`));
+            console.error(red(`Error during publish process: ${err.message}`));
             // Revert version back to original
             packageJson.version = originalVersion;
             this.savePackageJson(packageJson);
@@ -276,11 +292,10 @@ class PackageManager
         }
         finally
         {
-            // Restore devDependencies and scripts
+            // Restore devDependencies
             packageJson.devDependencies = originalDevDependencies;
-            packageJson.scripts = originalScripts;
             this.savePackageJson(packageJson);
-            console.log(green('Restored devDependencies and scripts in package.json'));
+            console.log(green('Restored devDependencies in package.json'));
         }
     }
 }
