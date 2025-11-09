@@ -1,28 +1,18 @@
 {
     "name": "@webergency-types/base",
-    "version": "0.0.2",
+    "version": "0.0.4",
     "description": "",
     "author": "radixxko",
+    "license": "MIT",
     "types": "types.d.ts",
     "files": [
         "types.d.ts"
     ],
-    "scripts": {
-        "clean": "rm -rf ./types.d.ts node_modules package-lock.json && npm i",
-        "build": "npm run clean && tsup src/types.ts --dts --dts-only --no-splitting --out-dir .",
-        "version": "npm run build && npm publish --access public && npm run commit && git push",
-        "commit": "node -e \"const version = require('./package.json').version.trim(); require('child_process').execSync('git add . && git commit -m \\\"Version ' + version + '\\\"');\""
-    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/webergency-types/base.git"
     },
     "bugs": {
         "url": "https://github.com/webergency-types/base/issues"
-    },
-    "devDependencies": {
-        "@types/node": "^24.10.0",
-        "tsup": "^8.5.0",
-        "typescript": "^5.9.3"
     }
 }
